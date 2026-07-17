@@ -28,4 +28,3 @@ A machine-readable building block from **[API Commons](https://apicommons.org)**
 - [train-travel](https://github.com/api-commons/train-travel) — the Bump.sh Train Travel API template this base was drawn from
 - [json-api](https://github.com/api-commons/json-api) — JSON:API schemas and governance for standardizing API responses
 - [examples](https://github.com/api-commons/examples) — shared request/response examples for API operations
-- [rate-limits](https://github.com/api-commons/rate-limits) — a schema for the rate limits behind the `RateLimit`/`Retry-After` responses here
