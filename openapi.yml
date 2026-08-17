@@ -2,7 +2,11 @@ openapi: 3.1.0
 info:
   title: Problem Details for HTTP APIs
   description: |
-    This is a base OpenAPI for the Problem Details for HTTP APIs, as a way to carry machine-readable details of errors in a HTTP response to avoid the need to define new error response formats for HTTP APIs. This was originally developed by Bump.sh as part of their [Train Travel API template](https://bump.sh/bump-examples/doc/train-travel-api), but reduced here to provide a base just for showcasing Problem Details for HTTP APIs.
+    This is a base OpenAPI for Problem Details for HTTP APIs, as defined by [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) — a way to carry machine-readable details of errors in an HTTP response, so nobody has to define a new error response format per API. RFC 9457 obsoleted RFC 7807 in July 2023; the `urn:ietf:rfc:7807` XML namespace below is retained deliberately, per RFC 9457 Appendix B.
+
+    Originally developed by Bump.sh as part of their [Train Travel API template](https://bump.sh/bump-examples/doc/train-travel-api), reduced here to provide a base just for showcasing Problem Details.
+
+    Conformance is checked with the [API Commons Problem Details Spectral ruleset](https://github.com/api-commons/spectral-problem-details-ruleset).
   version: 1.0.0
   contact:
     name: API Evangelist
@@ -14,7 +18,7 @@ info:
 
 externalDocs:
   description: This document defines a "problem detail" as a way to carry machine-readable details of errors in a HTTP response to avoid the need to define new error response formats for HTTP APIs.
-  url: https://datatracker.ietf.org/doc/html/rfc7807
+  url: https://www.rfc-editor.org/rfc/rfc9457
 
 tags:
   - name: Errors
@@ -39,6 +43,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
         '500':
@@ -47,12 +55,18 @@ paths:
 components:
   schemas:
     Problem:
+      type: object
+      description: >-
+        A problem detail object, per RFC 9457 Section 3.1. All members are
+        optional. `additionalProperties` is deliberately left unset so problem
+        types can add extension members, as Section 3.2 requires.
       xml:
         name: problem
         namespace: urn:ietf:rfc:7807
       properties:
         type:
           type: string
+          format: uri
           description: A URI reference that identifies the problem type
           example: https://example.com/probs/out-of-credit
         title:
@@ -65,6 +79,7 @@ components:
           example: Your current balance is 30, but that costs 50.
         instance:
           type: string
+          format: uri-reference
           description: A URI reference that identifies the specific occurrence of the problem
           example: /account/12345/msgs/abc
         status:
@@ -72,6 +87,15 @@ components:
           description: The HTTP status code
           example: 400
   headers:
+    WWW-Authenticate:
+      description: |
+        The authentication scheme(s) and parameters applicable to the target resource.
+        RFC 9110 Section 11.6.1 requires a 401 response to carry at least one challenge;
+        a problem detail explaining the 401 does not substitute for it.
+      schema:
+        type: string
+        example: 'Bearer realm="example", error="invalid_token"'
+
     RateLimit:
       description: |
         The RateLimit header communicates quota policies. It contains a `limit` to
@@ -79,8 +103,7 @@ components:
         and `reset` to convey the time window reset time.
       schema:
         type: string
-        example:
-          - limit=10, remaining=0, reset=10
+        example: 'limit=10, remaining=0, reset=10'
 
     Retry-After:
       description: | 
@@ -243,6 +266,8 @@ components:
     Unauthorized:
       description: Unauthorized
       headers:
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWW-Authenticate'
         RateLimit:
           $ref: '#/components/headers/RateLimit'
       content:
