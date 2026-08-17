@@ -28,3 +28,10 @@ A machine-readable building block from **[API Commons](https://apicommons.org)**
 - [train-travel](https://github.com/api-commons/train-travel) — the Bump.sh Train Travel API template this base was drawn from
 - [json-api](https://github.com/api-commons/json-api) — JSON:API schemas and governance for standardizing API responses
 - [examples](https://github.com/api-commons/examples) — shared request/response examples for API operations
+
+## License
+
+The artifacts in this repository — the schemas, examples, and API descriptions — are
+licensed **[CC BY-NC-SA 4.0](LICENSE)** (Attribution–NonCommercial–ShareAlike).
+
+API Commons licenses **artifacts** under CC BY-NC-SA 4.0 and **code** under Apache-2.0.
